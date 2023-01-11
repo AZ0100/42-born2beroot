@@ -174,9 +174,31 @@ your own operating system while implementing strict rules.
 ```
     Defaults  secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
 ```
-###  Bash script & Cronjob
-- <a href="https://github.com/azourgan/born2beroot/blob/main/monitoring.sh">monitoring.sh</a>
-- open cronjob
+###  Bash script & Crontab
+
+- creat this file : monitoring.sh
+- $ touch monitoring.sh
+- open it
+```
+    $ vim monitoring.sh  
+```
+- write this script
+```
+#!/bin/bash
+wall "#Architecture: $(uname -a)
+#CPU physical : $(cat /proc/cpuinfo | grep 'physical id' | uniq | wc -l)
+#vCPU : $(cat /proc/cpuinfo | grep 'processor' | uniq | wc -l)
+#Memory Usage: $(free -h | grep 'Mem' | awk '{print $7 "/" $2, "("$7/$2*100 "%)"}')
+#Disk Usage: $(df -h | grep /dev/mapper/LVMGroup-home | awk '{print $4"/"$2 , "("$4/$2*100"%)"}')
+#CPU load: $(mpstat | grep all | awk '{print $4 "%"}')
+#Last boot: $(who -b | awk '{print $3, $4}')
+#LVM use: $(lsblk | grep lvm | sort -u | awk '{if($6 == "lvm"){printf("yes\n");exit}else{printf("no\n")}}')
+#Connections TCP : $(netstat -s | grep 'active connection' | awk '{print $1}')
+#User log: $(users | wc -w)
+#Network: IP $(hostname -I)($(ip link | grep "link/ether" | awk '{print $2}'))
+#Sudo : $(cat /var/log/sudo/sudo.log | grep -a "COMM" | wc -l) cmd"
+```
+- open crontabb
 ```
     $ sudo crontab -e
 ```
